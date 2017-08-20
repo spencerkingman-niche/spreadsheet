@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import Excel from './components/Excel.js'
+import Excel from './components/Excel'
 import { headers, data } from './data/app.js'
 
 class App extends Component {

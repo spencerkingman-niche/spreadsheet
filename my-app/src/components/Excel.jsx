@@ -1,5 +1,6 @@
-import React, { Component } from 'react';
-import { table } from '../css/Excel.css'
+import React, { Component } from 'react'
+import '../css/Excel.css'
+import PropTypes from 'prop-types'
 
 class Excel extends Component {
     constructor() {
@@ -24,20 +25,23 @@ class Excel extends Component {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        {this.state.data.map( (row, i) => (
-                            <tr key={i}>
-                                {row.map( (cell, i) => (
-                                    <td key={i}>
-                                        {cell}
-                                    </td>))}
-                            </tr>
-                        ))}
-                    </tr>
+                    {this.state.data.map( (row, i) => (
+                        <tr key={i}>
+                            {row.map( (cell, i) => (
+                                <td key={i}>
+                                    {cell}
+                                </td>))}
+                        </tr>
+                    ))}
+                    
                 </tbody>
             </table>
         )
     }
+}
+
+Excel.PropTypes = {
+    headers: PropTypes.arrayOf(PropTypes.string)
 }
 
 export default Excel;

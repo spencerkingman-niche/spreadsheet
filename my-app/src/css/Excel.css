@@ -1,6 +1,23 @@
-.table {
-}    
-
-* {
-background-color: rgba(0,0,0,0.1)
+table {
+    position: absolute;
+    width: 100%;
 }
+
+thead {
+    background-color: #DDDDDD;
+}
+
+th {
+    padding: 5px;
+    color: #440044;
+}
+
+td {
+    padding: 5px;
+    color: green;
+    border-bottom: 1px solid #440044;
+}
+
+// * {
+//     background-color: rgba(0, 0, 0, 0.01)
+// }
