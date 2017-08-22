@@ -6,15 +6,18 @@ class Excel extends Component {
     constructor() {
         super()
         this.state = {
+            ascending: true,
             data: [],
             edit: {
                 row : null,
                 cell : null
             },
+            search: false,
             sortBy: null,
-            ascending: true
         }
         this._handleFocus = this._handleFocus.bind(this)
+        this._renderTable = this._renderTable.bind(this)
+        this._renderToolbar = this._renderToolbar.bind(this)
         this._save = this._save.bind(this)
         this._sort = this._sort.bind(this)
         this._showEditor = this._showEditor.bind(this)
@@ -70,7 +73,11 @@ class Excel extends Component {
         })
     }
 
-    render() {
+    _renderToolbar() {
+        //TODO
+    }
+
+    _renderTable() {
         const edit = this.state.edit
         return (
             <table className="table">
@@ -105,8 +112,16 @@ class Excel extends Component {
                         </tr>
                     ))}  
                 </tbody>
-
             </table>
+        )
+    }
+
+    render() {
+        return (
+            <div>
+                {this._renderToolbar()}
+                {this._renderTable()}
+            </div>
         )
     }
 }
