@@ -10,12 +10,20 @@ thead {
 th {
     padding: 5px;
     color: #440044;
+    -webkit-transition: all 0.15s;
+    transition: all 0.15s;
+}
+
+td:hover, th:hover {
+    background-color: #eee;
 }
 
 td {
     padding: 5px;
     color: green;
     border-bottom: 1px solid #440044;
+    -webkit-transition: all 0.15s;
+    transition: all 0.15s;
 }
 
 // * {

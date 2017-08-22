@@ -14,6 +14,7 @@ class Excel extends Component {
             sortBy: null,
             ascending: true
         }
+        this._handleFocus = this._handleFocus.bind(this)
         this._save = this._save.bind(this)
         this._sort = this._sort.bind(this)
         this._showEditor = this._showEditor.bind(this)
@@ -21,6 +22,10 @@ class Excel extends Component {
 
     componentWillMount() {
         this.setState({data: this.props.initialData})
+    }
+
+    _handleFocus(e) {
+        e.target.select();
     }
 
     _save(e) {
@@ -83,19 +88,24 @@ class Excel extends Component {
                     {this.state.data.map( (row, i) => (
                         <tr key={i}>
                             {row.map( (cell, j) => {
+                                let content = cell
                                 if (edit && edit.row === i && edit.cell === j) {
+                                    content = (
+                                        <form onSubmit={this._save}>
+                                          <input type="text" defaultValue={content} onFocus={this._handleFocus} autoFocus>
+                                          </input>
+                                        </form>)
                                     return(
                                         <td key={j} data-row={i}>
-                                            <form onSubmit={this._save}>
-                                                <input type='text' defaultValue={this.state.data[i][j]} />
-                                            </form>
+                                            {content}  
                                         </td>)
                                 }
-                                return (<td key={j} data-row={i}>{cell}</td>)
+                                return (<td key={j} data-row={i}>{content}</td>)
                             })}     
                         </tr>
                     ))}  
                 </tbody>
+
             </table>
         )
     }
