@@ -16,11 +16,14 @@ class Excel extends Component {
             sortBy: null,
         }
         this._handleFocus = this._handleFocus.bind(this)
+        this._preSearchData = null
         this._renderTable = this._renderTable.bind(this)
         this._renderToolbar = this._renderToolbar.bind(this)
         this._save = this._save.bind(this)
+        this._search = this._search.bind(this)
         this._sort = this._sort.bind(this)
         this._showEditor = this._showEditor.bind(this)
+        this._toggleSearch = this._toggleSearch.bind(this)
     }
 
     componentWillMount() {
@@ -36,7 +39,7 @@ class Excel extends Component {
         const input = e.target.firstChild
         let value = input.value
         value = (isNaN(parseInt(value, 10))) ? value : +value
-        var data = this.state.data.slice()
+        let data = this.state.data.slice()
         data[this.state.edit.row][this.state.edit.cell] = value
         this.setState({
             edit: {
@@ -45,6 +48,19 @@ class Excel extends Component {
             }, 
             data: data,
         })
+    }
+
+    _search(e) {
+        let needle = e.target.value.toLowerCase()
+        if (!needle) { // the search string is deleted
+            this.setState({data: this._preSearchData})
+            return
+        }
+        let i = e.target.dataset.idx // which column to Search
+        let searchData = this._preSearchData.filter((row) => {
+            return row[i].toString().toLowerCase().indexOf(needle) > -1
+        })
+        this.setState({data: searchData})
     }
 
     _showEditor(e) {
@@ -75,8 +91,44 @@ class Excel extends Component {
         })
     }
 
+    _toggleSearch() {
+        if (this.state.search) {
+            this.setState({
+                data: this._preSearchData,
+                search: false,
+            })
+            this._preSearchData = null
+        } else {
+            this._preSearchData = this.state.data
+            this.setState({
+                search: true
+            })
+        }
+    }
+
+    _renderSearch() {
+        console.log(this.state.search)
+        if (!this.state.search) {
+            return null
+        }
+        return (
+            <tr onChange={this._search}>
+                {this.props.headers.map((_ignore, idx) => {
+                    return( 
+                        <td key={idx}>
+                            <input type="text" data-idx={idx}></input>
+                        </td>)
+                })}
+            </tr>
+        )
+    }
+
     _renderToolbar() {
-        //TODO
+        return(
+            <button onClick={ this._toggleSearch } className="toolbar">
+                Search: {this.state.search+""}
+            </button>
+        )
     }
 
     _renderTable() {
@@ -94,7 +146,8 @@ class Excel extends Component {
                     </tr>
                 </thead>
                 <tbody onDoubleClick={this._showEditor}>
-                    {this.state.data.map( (row, i) => (
+                    { this._renderSearch() }
+                    { this.state.data.map( (row, i) => (
                         <tr key={i}>
                             {row.map( (cell, j) => {
                                 let content = cell
