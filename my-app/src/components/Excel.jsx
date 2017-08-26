@@ -6,18 +6,24 @@ class Excel extends Component {
     constructor() {
         super()
         this.state = {
+            ascending: true,
             data: [],
             edit: {
                 row : null,
                 cell : null
             },
+            search: false,
             sortBy: null,
-            ascending: true
         }
         this._handleFocus = this._handleFocus.bind(this)
+        this._preSearchData = null
+        this._renderTable = this._renderTable.bind(this)
+        this._renderToolbar = this._renderToolbar.bind(this)
         this._save = this._save.bind(this)
+        this._search = this._search.bind(this)
         this._sort = this._sort.bind(this)
         this._showEditor = this._showEditor.bind(this)
+        this._toggleSearch = this._toggleSearch.bind(this)
     }
 
     componentWillMount() {
@@ -31,8 +37,10 @@ class Excel extends Component {
     _save(e) {
         e.preventDefault()
         const input = e.target.firstChild
-        var data = this.state.data.slice()
-        data[this.state.edit.row][this.state.edit.cell] = input.value
+        let value = input.value
+        value = (isNaN(parseInt(value, 10))) ? value : +value
+        let data = this.state.data.slice()
+        data[this.state.edit.row][this.state.edit.cell] = value
         this.setState({
             edit: {
                 row : null,
@@ -40,6 +48,19 @@ class Excel extends Component {
             }, 
             data: data,
         })
+    }
+
+    _search(e) {
+        let needle = e.target.value.toLowerCase()
+        if (!needle) { // the search string is deleted
+            this.setState({data: this._preSearchData})
+            return
+        }
+        let i = e.target.dataset.idx // which column to Search
+        let searchData = this._preSearchData.filter((row) => {
+            return row[i].toString().toLowerCase().indexOf(needle) > -1
+        })
+        this.setState({data: searchData})
     }
 
     _showEditor(e) {
@@ -70,7 +91,54 @@ class Excel extends Component {
         })
     }
 
-    render() {
+    _toggleSearch() {
+        if (this.state.search) {
+            this.setState({
+                data: this._preSearchData,
+                search: false,
+            })
+            this._preSearchData = null
+        } else {
+            this._preSearchData = this.state.data
+            this.setState({
+                search: true
+            })
+        }
+    }
+
+    _renderSearch() {
+        console.log(this.state.search)
+        if (!this.state.search) {
+            return null
+        }
+        return (
+            <tr onChange={this._search}>
+                {this.props.headers.map((_ignore, idx) => {
+                    return( 
+                        <td key={idx}>
+                            <input type="text" data-idx={idx}></input>
+                        </td>)
+                })}
+            </tr>
+        )
+    }
+
+    _renderToolbar() {
+        if (!this.state.search) {
+            return(
+                <button onClick={ this._toggleSearch } className="toolbar" >
+                    <span>Search</span>
+                </button>)
+        } else {
+            return(
+                <button onClick={ this._toggleSearch } className="toolbar" >
+                    <span>Done Searching</span>
+                </button>) 
+        }
+    }
+
+
+    _renderTable() {
         const edit = this.state.edit
         return (
             <table className="table">
@@ -85,14 +153,15 @@ class Excel extends Component {
                     </tr>
                 </thead>
                 <tbody onDoubleClick={this._showEditor}>
-                    {this.state.data.map( (row, i) => (
+                    { this._renderSearch() }
+                    { this.state.data.map( (row, i) => (
                         <tr key={i}>
                             {row.map( (cell, j) => {
                                 let content = cell
                                 if (edit && edit.row === i && edit.cell === j) {
                                     content = (
                                         <form onSubmit={this._save}>
-                                          <input type="text" defaultValue={content} onFocus={this._handleFocus} autoFocus>
+                                          <input defaultValue={content} onFocus={this._handleFocus} autoFocus>
                                           </input>
                                         </form>)
                                     return(
@@ -100,19 +169,29 @@ class Excel extends Component {
                                             {content}  
                                         </td>)
                                 }
-                                return (<td key={j} data-row={i}>{content}</td>)
+                                return (<td key={j} data-row={i} className={(typeof cell === 'number') ? "text-right" : "text-left"}>{content}</td>)
+                                
                             })}     
                         </tr>
                     ))}  
                 </tbody>
-
             </table>
+        )
+    }
+
+    render() {
+        return (
+            <div>
+                {this._renderToolbar()}
+                {this._renderTable()}
+            </div>
         )
     }
 }
 
 Excel.PropTypes = {
-    headers: PropTypes.arrayOf(PropTypes.string)
+    headers: PropTypes.arrayOf(PropTypes.string),
+    initialData: PropTypes.arrayOf(PropTypes.any)
 }
 
 export default Excel;
