@@ -124,12 +124,19 @@ class Excel extends Component {
     }
 
     _renderToolbar() {
-        return(
-            <button onClick={ this._toggleSearch } className="toolbar">
-                Search: {this.state.search+""}
-            </button>
-        )
+        if (!this.state.search) {
+            return(
+                <button onClick={ this._toggleSearch } className="toolbar" >
+                    <span>Search</span>
+                </button>)
+        } else {
+            return(
+                <button onClick={ this._toggleSearch } className="toolbar" >
+                    <span>Done Searching</span>
+                </button>) 
+        }
     }
+
 
     _renderTable() {
         const edit = this.state.edit
