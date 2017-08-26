@@ -34,8 +34,10 @@ class Excel extends Component {
     _save(e) {
         e.preventDefault()
         const input = e.target.firstChild
+        let value = input.value
+        value = (isNaN(parseInt(value, 10))) ? value : +value
         var data = this.state.data.slice()
-        data[this.state.edit.row][this.state.edit.cell] = input.value
+        data[this.state.edit.row][this.state.edit.cell] = value
         this.setState({
             edit: {
                 row : null,
@@ -99,7 +101,7 @@ class Excel extends Component {
                                 if (edit && edit.row === i && edit.cell === j) {
                                     content = (
                                         <form onSubmit={this._save}>
-                                          <input type="text" defaultValue={content} onFocus={this._handleFocus} autoFocus>
+                                          <input defaultValue={content} onFocus={this._handleFocus} autoFocus>
                                           </input>
                                         </form>)
                                     return(
@@ -107,7 +109,8 @@ class Excel extends Component {
                                             {content}  
                                         </td>)
                                 }
-                                return (<td key={j} data-row={i}>{content}</td>)
+                                return (<td key={j} data-row={i} className={(typeof cell === 'number') ? "text-right" : "text-left"}>{content}</td>)
+                                
                             })}     
                         </tr>
                     ))}  
@@ -127,7 +130,8 @@ class Excel extends Component {
 }
 
 Excel.PropTypes = {
-    headers: PropTypes.arrayOf(PropTypes.string)
+    headers: PropTypes.arrayOf(PropTypes.string),
+    initialData: PropTypes.arrayOf(PropTypes.any)
 }
 
 export default Excel;
