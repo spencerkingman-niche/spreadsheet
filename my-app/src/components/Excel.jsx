@@ -16,6 +16,7 @@ class Excel extends Component {
             search: false,
             sortBy: null,
         }
+        this._download = this._download.bind(this)
         this._handleFocus = this._handleFocus.bind(this)
         this._log = []
         this._logSetState = this._logSetState.bind(this)
@@ -40,6 +41,27 @@ class Excel extends Component {
             }
         }
     }
+
+    _download(format, e) {
+        let contents = (format === 'json') 
+            ? JSON.stringify(this.state.data) 
+            : this.state.data.reduce((result, row) => {
+                return result
+                    + row.reduce((rowResult, cell, idx)=>{
+                        return rowResult
+                            + '"'
+                            + cell.replace(/"/g, '""')
+                            + '"'
+                            + (idx < row.length - 1 ? ',' : '')
+                        }, '')
+                    + "\n"
+                }, '')
+        let URL = window.URL || window.webkitURL
+        let blob = new Blob([contents], {type: 'text/' + format})
+        e.target.href = URL.createObjectURL(blob)
+        e.target.download = 'data.'+ format
+    }
+
     _handleFocus(e) {
         e.target.select()
     }
@@ -159,17 +181,23 @@ class Excel extends Component {
     }
 
     _renderToolbar() {
+        let searchButton = null
         if (!this.state.search) {
-            return(
-                <button onClick={ this._toggleSearch } className="toolbar" >
+            searchButton = (<button onClick={ this._toggleSearch } className="toolbar" >
                     <span>Search</span>
                 </button>)
         } else {
-            return(
-                <button onClick={ this._toggleSearch } className="toolbar" >
+            searchButton = (<button onClick={ this._toggleSearch } className="toolbar" >
                     <span>Done Searching</span>
                 </button>) 
         }
+        return (
+            <div className="toolbar">
+                {searchButton}
+                <a href="data.json" onClick={this._download} >Export JSON</a>
+                <a href="data.csv" onClick={this._download} >Export CSV</a>
+            </div>
+            )
     }
 
     _renderTable() {
