@@ -3,6 +3,7 @@ import '../css/Excel.css'
 import PropTypes from 'prop-types'
 
 class Excel extends Component {
+    
     constructor() {
         super()
         this.state = {
@@ -16,6 +17,8 @@ class Excel extends Component {
             sortBy: null,
         }
         this._handleFocus = this._handleFocus.bind(this)
+        this._log = []
+        this._logSetState = this._logSetState.bind(this)
         this._preSearchData = null
         this._renderTable = this._renderTable.bind(this)
         this._renderToolbar = this._renderToolbar.bind(this)
@@ -27,11 +30,41 @@ class Excel extends Component {
     }
 
     componentWillMount() {
-        this.setState({data: this.props.initialData})
+        this._logSetState({data: this.props.initialData})
     }
 
+    componentDidMount() {
+        document.onkeydown = (e) => {
+            if (e.altKey && e.shiftKey && e.keyCode === 82) {
+                this._replay()
+            }
+        }
+    }
     _handleFocus(e) {
-        e.target.select();
+        e.target.select()
+    }
+
+    _logSetState(newState) {
+        //remember the old state in a clone
+        this._log.push(JSON.parse(JSON.stringify(
+            this._log.length === 0 ? this.state : newState
+        )))
+        this.setState(newState)
+    }
+
+    _replay() {
+        if (this._log.length === 0) {
+            console.warn('No state to replay yet')
+            return
+        }
+        let idx = -1
+        let interval = setInterval(() => {
+            idx++
+            if (idx === this._log.length - 1) { // the end
+                clearInterval(interval)
+            }
+            this.setState(this._log[idx])
+        }, 1000)
     }
 
     _save(e) {
@@ -41,7 +74,7 @@ class Excel extends Component {
         value = (isNaN(parseInt(value, 10))) ? value : +value
         let data = this.state.data.slice()
         data[this.state.edit.row][this.state.edit.cell] = value
-        this.setState({
+        this._logSetState({
             edit: {
                 row : null,
                 cell : null
@@ -52,22 +85,25 @@ class Excel extends Component {
 
     _search(e) {
         let needle = e.target.value.toLowerCase()
-        if (!needle) { // the search string is deleted
-            this.setState({data: this._preSearchData})
+        
+        console.log(this.input)
+
+        if (!needle) { // all search strings are deleted
+            this._logSetState({data: this._preSearchData})
             return
         }
         let i = e.target.dataset.idx // which column to Search
-        let searchData = this._preSearchData.filter((row) => {
+        let searchData = this.state.data.filter((row) => {
             return row[i].toString().toLowerCase().indexOf(needle) > -1
         })
-        this.setState({data: searchData})
+        this._logSetState({data: searchData})
     }
 
     _showEditor(e) {
         e.preventDefault()
         const row = parseInt(e.target.dataset.row, 10)
         const column = e.target.cellIndex
-        this.setState({
+        this._logSetState({
             edit : {
                 row : row,
                 cell : column
@@ -84,7 +120,7 @@ class Excel extends Component {
                                 (a[column]<b[column] ? 1 : -1) :
                                 (a[column]>b[column] ? 1 : -1)
                                 ))
-        this.setState({
+        this._logSetState({
             data: data,
             sortBy: column,
             ascending: ascending
@@ -93,21 +129,20 @@ class Excel extends Component {
 
     _toggleSearch() {
         if (this.state.search) {
-            this.setState({
+            this._logSetState({
                 data: this._preSearchData,
                 search: false,
             })
             this._preSearchData = null
         } else {
             this._preSearchData = this.state.data
-            this.setState({
+            this._logSetState({
                 search: true
             })
         }
     }
 
     _renderSearch() {
-        console.log(this.state.search)
         if (!this.state.search) {
             return null
         }
@@ -136,7 +171,6 @@ class Excel extends Component {
                 </button>) 
         }
     }
-
 
     _renderTable() {
         const edit = this.state.edit
