@@ -182,7 +182,7 @@ class Excel extends Component {
     _renderToolbar() {
         let searchButton = null
         if (!this.state.search) {
-            searchButton = (<button onClick={ this._toggleSearch } className="toolbar" >
+            searchButton = (<button onClick={ this._toggleSearch } className="search" >
                     <span>Search</span>
                 </button>)
         } else {
@@ -191,7 +191,7 @@ class Excel extends Component {
                 </button>) 
         }
         return (
-            <div className="toolbar">
+            <div className="toolbar text-left">
                 {searchButton}
                 <a href="data.json" onClick={this._download.bind(this, 'json')} >Export JSON</a>
                 <a href="data.csv" onClick={this._download.bind(this, 'csv')} >Export CSV</a>

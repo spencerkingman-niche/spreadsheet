@@ -1,6 +1,31 @@
 a {
   padding: 10px;
+  font-size: 0.65em;
+  text-decoration: none;
+  margin: 5px;
   border: 1px black solid;
+  border-radius: 5px;
+  background-color: #dddddd;
+  box-shadow: 1px 1px 1px #888;
+}
+
+a:hover {
+  background-color: #eee;
+}
+
+button {
+  padding: 9px;
+  margin: 5px;
+  border-radius: 5px;
+  width: 150px;
+}
+
+button:hover {
+  background-color: #eee;
+}
+
+input {
+  width: 100%;
 }
 
 table {
