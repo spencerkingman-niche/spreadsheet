@@ -16,7 +16,6 @@ class Excel extends Component {
             search: false,
             sortBy: null,
         }
-        this._download = this._download.bind(this)
         this._handleFocus = this._handleFocus.bind(this)
         this._log = []
         this._logSetState = this._logSetState.bind(this)
@@ -194,8 +193,8 @@ class Excel extends Component {
         return (
             <div className="toolbar">
                 {searchButton}
-                <a href="data.json" onClick={this._download} >Export JSON</a>
-                <a href="data.csv" onClick={this._download} >Export CSV</a>
+                <a href="data.json" onClick={this._download.bind(this, 'json')} >Export JSON</a>
+                <a href="data.csv" onClick={this._download.bind(this, 'csv')} >Export CSV</a>
             </div>
             )
     }
